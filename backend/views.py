@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
+from django.core.urlresolvers import reverse
 
 from .models import *
 
@@ -54,5 +55,5 @@ def user_register(request):
     except IntegrityError:
         return JsonResponse(json_error("Phone number/email already exists"), status=400)
     else:
-        return JsonResponse(user.json_detail())
+        return HttpResponseRedirect(reverse('backend:user_details', args=(user.pk,)))
         

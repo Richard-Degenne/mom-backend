@@ -66,7 +66,8 @@ class UserRegisterTests(TestCase):
                 'email': u.email,
                 'phone_number': u.phone_number
         })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get(response.url)
         self.assertDictEqual(response.json(), self.client.get(reverse('backend:user_details', args=(response.json()['pk'],))).json())
 
     def test_no_first_name(self):
@@ -80,7 +81,8 @@ class UserRegisterTests(TestCase):
                 'email': "david.smith@mom.com",
                 'phone_number': "012-345-6789"
         })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get(response.url)
         self.assertEqual(response.json()['first_name'], '')
 
     def test_no_last_name(self):
@@ -94,7 +96,8 @@ class UserRegisterTests(TestCase):
                 'email': "david.smith@mom.com",
                 'phone_number': "012-345-6789"
         })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get(response.url)
         self.assertEqual(response.json()['last_name'], '')
 
     def test_no_password(self):
@@ -183,7 +186,8 @@ class UserRegisterTests(TestCase):
                 'password': "******",
                 'email': "david.smith@mom.com",
         })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get(response.url)
         self.assertEqual(response.json()['phone_number'], None)
 
     def test_blank_phone_number(self):
@@ -198,7 +202,8 @@ class UserRegisterTests(TestCase):
                 'email': "david.smith@mom.com",
                 'phone_number': ""
         })
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get(response.url)
         self.assertEqual(response.json()['phone_number'], None)
 
     def test_duplicate_phone_number(self):
