@@ -3,11 +3,30 @@ from django.db import models
 # Create your models here.
 
 class User(models.Model):
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    password = models.CharField(max_length=50)
-    email = models.EmailField(max_length=70)
-    phone_number = models.CharField(max_length=15)
+    """
+    A User is an entity (a person), who has an account on Mom.
+    """
+    first_name = models.CharField(max_length=50, null=True)
+    last_name = models.CharField(max_length=50, null=True)
+    password = models.CharField(max_length=50, null=False, blank=False)
+    email = models.EmailField(max_length=70, null=False, unique=True, blank=False)
+    phone_number = models.CharField(max_length=15, null=True, unique=True)
+
+    def json_detail(self):
+        """
+        Gives a dictionnary containing the main information about a User.
+
+        @ return A dictionnary in the following format:
+        `{'pk':pk, 'first_name':first_name, 'last_name':last_name, 'email':email,
+        'phone_number':phone_number}`
+        """
+        return {
+                'pk': self.pk,
+                'first_name': self.first_name,
+                'last_name': self.last_name,
+                'email': self.email,
+                'phone_number': self.phone_number
+        }
 
 class Event(models.Model):
     name = models.CharField(max_length=100)
