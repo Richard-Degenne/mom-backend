@@ -6,11 +6,11 @@ class User(models.Model):
     """
     A User is an entity (a person), who has an account on Mom.
     """
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    password = models.CharField(max_length=50)
-    email = models.EmailField(max_length=70, unique=True, null=False)
-    phone_number = models.CharField(max_length=15, unique=True)
+    first_name = models.CharField(max_length=50, null=True)
+    last_name = models.CharField(max_length=50, null=True)
+    password = models.CharField(max_length=50, null=False, blank=False)
+    email = models.EmailField(max_length=70, null=False, unique=True, blank=False)
+    phone_number = models.CharField(max_length=15, null=True, unique=True)
 
     def json_detail(self):
         """
