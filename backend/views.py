@@ -8,9 +8,18 @@ from .models import *
 
 # Create your views here.
 
-def json_error(message):
-    return {'message': message}
+####################
+# HELPER FUNCTIONS #
+####################
 
+def json_error(message):
+    return {'status': "failure",
+            'message': message
+    }
+
+##############
+# USER VIEWS #
+##############
 def user_details(request, user_pk):
     """
     Get a user detailed information.
@@ -57,3 +66,22 @@ def user_register(request):
     else:
         return HttpResponseRedirect(reverse('backend:user_details', args=(user.pk,)))
         
+def user_sign_in(request):
+    """
+    Checks whether the given `email`/`password` combination exists.
+    
+    @return On success, a JSON object with "success" as `status` and the
+    logged-in user PK.
+    On failure, a JSON object with "failure" as `status` and a useful `message`.
+    On a bad request, a 400 error.
+    """
+    try:
+        user = User.objects.get(email=request.POST['email'], password=request.POST['password'])
+    except KeyError:
+        return JsonResponse(json_error("Missing parameters"), status=400)
+    except User.DoesNotExist:
+        return JsonResponse(json_error("Incorrect email/password"), status=401)
+    else:
+        request.session['user_pk'] = user.pk
+        return JsonResponse({'status':'success', 'user_pk':user.pk})
+

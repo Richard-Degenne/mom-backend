@@ -112,7 +112,7 @@ class UserRegisterTests(TestCase):
                 'phone_number': "012-345-6789"
         })
         self.assertEqual(response.status_code, 400)
-        self.assertDictEqual(response.json(), {'message': "Missing parameters"})
+        self.assertDictContainsSubset({'message': "Missing parameters"}, response.json())
 
     def test_blank_password(self):
         """
@@ -127,7 +127,7 @@ class UserRegisterTests(TestCase):
                 'phone_number': "012-345-6789"
         })
         self.assertEqual(response.status_code, 400)
-        self.assertDictEqual(response.json(), {'message': "Password/Email cannot be empty"})
+        self.assertDictContainsSubset({'message': "Password/Email cannot be empty"}, response.json())
 
     def test_no_email(self):
         """
@@ -141,7 +141,7 @@ class UserRegisterTests(TestCase):
                 'phone_number': "012-345-6789"
         })
         self.assertEqual(response.status_code, 400)
-        self.assertDictEqual(response.json(), {'message': "Missing parameters"})
+        self.assertDictContainsSubset({'message': "Missing parameters"}, response.json())
 
     def test_blank_email(self):
         """
@@ -156,7 +156,7 @@ class UserRegisterTests(TestCase):
                 'phone_number': "012-345-6789"
         })
         self.assertEqual(response.status_code, 400)
-        self.assertDictEqual(response.json(), {'message': "Password/Email cannot be empty"})
+        self.assertDictContainsSubset({'message': "Password/Email cannot be empty"}, response.json())
 
     def test_duplicate_email(self):
         """
@@ -173,7 +173,7 @@ class UserRegisterTests(TestCase):
         self.register(params)
         response = self.register(params)
         self.assertEqual(response.status_code, 400)
-        self.assertDictEqual(response.json(), {'message': "Phone number/email already exists"})
+        self.assertDictContainsSubset({'message': "Phone number/email already exists"}, response.json())
 
     def test_no_phone_number(self):
         """
@@ -221,4 +221,59 @@ class UserRegisterTests(TestCase):
         self.register(params)
         response = self.register(params)
         self.assertEqual(response.status_code, 400)
-        self.assertDictEqual(response.json(), {'message': "Phone number/email already exists"})
+        self.assertDictContainsSubset({'message': "Phone number/email already exists"}, response.json())
+
+class UserSignInTests(TestCase):
+    def test_sign_in(self):
+        """
+        Sending a correct sign in request must return a JSON object with the
+        correct values.
+        """
+        user = User.objects.create(email='david.smith@mom.com', password='******')
+        response = self.client.post(reverse('backend:sign_in'), {'email':user.email, 'password':user.password})
+        self.assertEqual(response.status_code, 200)
+        self.assertDictContainsSubset({'status': 'success'}, response.json())
+        self.assertDictContainsSubset({'user_pk': user.pk}, response.json())
+
+    def test_sign_in_no_email(self):
+        """
+        Sending a sign in request without an `email` request parameter must return
+        a 400 error.
+        """
+        response = self.client.post(reverse('backend:sign_in'), {'password': '******'})
+        self.assertEqual(response.status_code, 400)
+        self.assertDictContainsSubset({'status': "failure"}, response.json())
+        self.assertDictContainsSubset({'message': "Missing parameters"}, response.json())
+
+    def test_sign_in_no_password(self):
+        """
+        Sending a sign in request without a `password` request parameter must return
+        a 400 error.
+        """
+        response = self.client.post(reverse('backend:sign_in'), {'email': 'david.smith@mom.com'})
+        self.assertEqual(response.status_code, 400)
+        self.assertDictContainsSubset({'status': "failure"}, response.json())
+        self.assertDictContainsSubset({'message': "Missing parameters"}, response.json())
+
+    def test_sign_in_invalid_email(self):
+        """
+        Sending a sign in request with an invalid `email` request parameter must
+        return a 401 error.
+        """
+        user = User.objects.create(email='david.smith@mom.com', password='******')
+        response = self.client.post(reverse('backend:sign_in'), {'email': 'wrong@email.com', 'password': user.password})
+        self.assertEqual(response.status_code, 401)
+        self.assertDictContainsSubset({'status': "failure"}, response.json())
+        self.assertDictContainsSubset({'message': "Incorrect email/password"}, response.json())
+
+    def test_sign_in_invalid_password(self):
+        """
+        Sending a sign in request with an invalid `email` request parameter must
+        return a 401 error.
+        """
+        user = User.objects.create(email='david.smith@mom.com', password='******')
+        response = self.client.post(reverse('backend:sign_in'), {'email': user.email, 'password': 'wrong_password'})
+        self.assertEqual(response.status_code, 401)
+        self.assertDictContainsSubset({'status': "failure"}, response.json())
+        self.assertDictContainsSubset({'message': "Incorrect email/password"}, response.json())
+
