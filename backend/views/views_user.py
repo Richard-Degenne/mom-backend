@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
 
-from .models import *
+from backend.models import *
 
 # Create your views here.
 
