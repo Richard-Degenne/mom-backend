@@ -64,6 +64,18 @@ class UserDetailsTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.json(), u.json_detail())
 
+class UserEventsTests(TestCase):
+    def sign_in(self):
+        """
+        Log in as a test user to authenticate for further testing.
+        """
+        u = User.objects.create(first_name = "Testing",
+                last_name = 'Tester',
+                password='******',
+                email='testing.tester@mom.com',
+                phone_number='000-000-0000')
+        self.client.session['user_pk'] = u.pk
+
 class UserRegisterTests(TestCase):
     def register(self, params):
         return self.client.post(reverse('backend:user_register'), params)

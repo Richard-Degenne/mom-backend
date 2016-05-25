@@ -57,6 +57,22 @@ def user_details(request, user_pk):
     user = get_object_or_404(User, pk=user_pk)
     return JsonResponse(user.json_detail())
 
+def user_events(request, user_pk):
+    """
+    Get the events whose creator is the given user.
+
+    @param  user_pk     Primary key of the user to get
+
+    @return     A JSON object containing the requested info
+    or a 404 error if the user couldn't be found.
+    """
+    get_session_user(request)
+    user = get_object_or_404(User, pk=user_pk)
+    response = []
+    for e in Event.objects.filter(fk_user_created_by=user.pk):
+        response.append({'event_pk':e.pk, 'name':e.name})
+    return JsonResponse(response, safe=False)
+
 def user_register(request):
     """
     Register a new user in the database.
