@@ -13,10 +13,32 @@ from backend.models import *
 ####################
 
 def json_error(message):
+    """
+    Generates a JSON object to indicate an error.
+
+    @param  message     The message to associate to the error.
+
+    @return A JSON object with the following structure:
+    {'status': "failure", 'message': <message>}
+    """
     return {'status': "failure",
             'message': message
     }
 
+def get_session_user(request):
+    """
+    Checks in the session variable wether the client making the request
+    is logged in.
+
+    @return     On success, the User object associated with the session.
+    On failure, return a 401 error.
+    """
+    try:
+        action_user = User.objects.get(pk=request.session['user_pk'])
+    except (KeyError, User.DoesNotExist):
+        return JsonResponse(json_error("Unauthorized"), status=401)
+    else:
+        return action_user
 ##############
 # USER VIEWS #
 ##############
@@ -31,6 +53,7 @@ def user_details(request, user_pk):
 
     @see User.json_detail
     """
+    get_session_user(request)
     user = get_object_or_404(User, pk=user_pk)
     return JsonResponse(user.json_detail())
 

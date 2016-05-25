@@ -36,6 +36,25 @@ class Event(models.Model):
     place_event = models.CharField(max_length=100)
     fk_user_created_by=models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    def json_detail(self):
+        """
+        Gives a dictionnary containing the main information about an Event.
+
+        @ return A dictionnary in the following format:
+        `{'pk':pk, 'name':name, 'description':description, 'date':date,
+        'place_event':place_event, 'date_created': date_created,
+        'pk_user_created': fk_user_created_by}`
+        """
+        return {
+                'pk': self.pk,
+                'name': self.name,
+                'description': self.description,
+                'date': self.date,
+                'place_event': self.place_event,
+                'date_created': self.date_created,
+                'pk_user_created_by': self.fk_user_created_by.pk
+        }
+
 class Network(models.Model):
     name = models.CharField(max_length=50)
 

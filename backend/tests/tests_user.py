@@ -7,6 +7,11 @@ from backend.models import *
 
 # Create your tests here.
 
+####################
+# HELPER FUNCTIONS #
+####################
+
+
 class UserMethodsTests(TestCase):
     def test_json_detail(self):
         """
@@ -25,11 +30,23 @@ class UserMethodsTests(TestCase):
                 'phone_number': '012-345-6789'})
 
 class UserDetailsTests(TestCase):
+    def sign_in(self):
+        """
+        Log in as a test user to authenticate for further testing.
+        """
+        u = User.objects.create(first_name = "Testing",
+                last_name = 'Tester',
+                password='******',
+                email='testing.tester@mom.com',
+                phone_number='000-000-0000')
+        self.client.session['user_pk'] = u.pk
+
     def test_unknown_user(self):
         """
         A query for an unknown user must return a 404 status code.
         """
-        response = self.client.get(reverse('backend:user_details', args=(1,)))
+        self.sign_in()
+        response = self.client.get(reverse('backend:user_details', args=(0,)))
         self.assertEqual(response.status_code, 404)
 
     def test_known_user(self):
@@ -37,6 +54,7 @@ class UserDetailsTests(TestCase):
         A query for a known user must return a JSON object containing
         the user's informations.
         """
+        self.sign_in()
         u = User.objects.create(first_name = "David",
                 last_name = 'Smith',
                 password='******',
