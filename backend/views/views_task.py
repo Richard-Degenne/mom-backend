@@ -64,6 +64,24 @@ def task_items(request, task_pk):
                 'date_created': i.date_created})
     return JsonResponse(response, safe=False)
 
+def task_comments(request, task_pk):
+    """
+    Get all the comments associated to a given task.
+
+    @param  task_pk     Primary key of the task to get
+
+    @return     A JSON array containing all the comments JSON objects.
+    """
+    get_session_user(request)
+    task = get_object_or_404(Task, pk=task_pk)
+    response=[]
+    for c in Comment.objects.filter(fk_task=task):
+        response.append({'pk': c.pk,
+                'content': c.content,
+                'date_created': c.date_created,
+                'pk_user': c.fk_user_created_by.pk})
+    return JsonResponse(response, safe=False)
+
 def task_add_user(request, task_pk):
     """
     Affects a new user to a given task.

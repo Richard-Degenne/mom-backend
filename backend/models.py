@@ -99,7 +99,15 @@ class Comment(models.Model):
     content = models.CharField(max_length=250)
     date_created = models.DateTimeField(auto_now_add=True)
     fk_task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    fk_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    fk_user_created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def json_detail(self):
+        return {'pk': self.pk,
+                'content': self.content,
+                'date_created': self.date_created,
+                'pk_task': self.fk_task.pk,
+                'pk_user_created_by': self.fk_user_created_by.pk
+        }
 
 class Invitation(models.Model):
     content = models.CharField(max_length=250)

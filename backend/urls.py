@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .views import views_user, views_event, views_status, views_task, views_task_item
+from .views import views_user, views_event, views_status, views_task, views_task_item, views_comment
 
 app_name='backend'
 
@@ -34,6 +34,8 @@ urlpatterns = [
         ########
         # /task/<pk_task>/items
         url(r'task/(?P<task_pk>[0-9]+)/items', views_task.task_items, name='task_items'),
+        # /task/<pk_task>/comments
+        url(r'task/(?P<task_pk>[0-9]+)/comments', views_task.task_comments, name='task_comments'),
         # /task/<pk_task>/add_user
         url(r'task/(?P<task_pk>[0-9]+)/add_user', views_task.task_add_user, name='task_add_user'),
         # /task/<pk_task>
@@ -50,6 +52,14 @@ urlpatterns = [
         url(r'task_item/create', views_task_item.task_item_create, name='task_item_create'),
         # /task_item/edit
         url(r'task_item/edit', views_task_item.task_item_edit, name='task_item_edit'),
+
+        ###########
+        # COMMENT #
+        ###########
+        # /comment/create
+        url(r'comment/create', views_comment.comment_create, name='comment_create'),
+        # /comment/<pk_comment>
+        url(r'comment/(?P<comment_pk>[0-9]+)', views_comment.comment_details, name='comment_details'),
 
         ##########
         # STATUS #
