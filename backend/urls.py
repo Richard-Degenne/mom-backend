@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .views import views_user, views_event, views_status, views_task
+from .views import views_user, views_event, views_status, views_task, views_task_item
 
 app_name='backend'
 
@@ -32,10 +32,20 @@ urlpatterns = [
         ########
         # TASK #
         ########
+        # /task/<pk_task>/items
+        url(r'task/(?P<task_pk>[0-9]+)/items', views_task.task_items, name='task_items'),
         # /task/<pk_task>
         url(r'task/(?P<task_pk>[0-9]+)', views_task.task_details, name='task_details'),
         # /task/create
         url(r'task/create', views_task.task_create, name='task_create'),
+
+        #############
+        # TASK ITEM #
+        #############
+        # /task_item/<pk_task_item>
+        url(r'task_item/(?P<task_item_pk>[0-9]+)', views_task_item.task_item_details, name='task_item_details'),
+        # /task_item/create
+        url(r'task_item/create', views_task_item.task_item_create, name='task_item_create'),
 
         ##########
         # STATUS #

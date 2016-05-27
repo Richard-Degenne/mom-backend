@@ -46,6 +46,24 @@ def get_session_user(request):
 ##############
 # TASK VIEWS #
 ##############
+def task_items(request, task_pk):
+    """
+    Get all the items associated to a given task.
+
+    @param  task_pk     Primary key of the task to get
+
+    @return     A JSON array containing all the items JSON objects.
+    """
+    get_session_user(request)
+    task = get_object_or_404(Task, pk=task_pk)
+    response=[]
+    for i in TaskItem.objects.filter(fk_task=task):
+        response.append({'pk': i.pk,
+                'name': i.name,
+                'completed': i.completed,
+                'date_created': i.date_created})
+    return JsonResponse(response, safe=False)
+
 def task_details(request, task_pk):
     """
     Get a task detailed information.
@@ -59,7 +77,7 @@ def task_details(request, task_pk):
     """
     get_session_user(request)
     task = get_object_or_404(Task, pk=task_pk)
-    return JsonResponse(task.json_details())
+    return JsonResponse(task.json_detail())
 
 def task_create(request):
     """

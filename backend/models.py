@@ -72,7 +72,7 @@ class Task(models.Model):
     fk_event = models.ForeignKey(Event, on_delete=models.CASCADE)
     fk_user_created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
-    def json_details(self):
+    def json_detail(self):
         return {'pk': self.pk,
                 'name': self.name,
                 'description': self.description,
@@ -86,6 +86,14 @@ class TaskItem(models.Model):
     completed = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
     fk_task = models.ForeignKey(Task, on_delete=models.CASCADE)
+
+    def json_detail(self):
+        return {'pk': self.pk,
+                'name': self.name,
+                'completed': self.completed,
+                'date_created': self.date_created,
+                'pk_task': self.fk_task.pk
+        }
 
 class Comment(models.Model):
     content = models.CharField(max_length=250)
