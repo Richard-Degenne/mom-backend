@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .views import views_user, views_event, views_status
+from .views import views_user, views_event, views_status, views_task
 
 app_name='backend'
 
@@ -22,10 +22,20 @@ urlpatterns = [
         #########
         # /event/<pk_event>/statuses
         url(r'event/(?P<event_pk>[0-9]+)/statuses', views_event.event_statuses, name='event_statuses'),
+        # /event/<pk_event>/tasks
+        url(r'event/(?P<event_pk>[0-9]+)/tasks', views_event.event_tasks, name='event_tasks'),
         # /event/<pk_event>
         url(r'event/(?P<event_pk>[0-9]+)', views_event.event_details, name='event_details'),
         # /event/create
         url(r'event/create', views_event.event_create, name='event_create'),
+
+        ########
+        # TASK #
+        ########
+        # /task/<pk_task>
+        url(r'task/(?P<task_pk>[0-9]+)', views_task.task_details, name='task_details'),
+        # /task/create
+        url(r'task/create', views_task.task_create, name='task_create'),
 
         ##########
         # STATUS #

@@ -64,6 +64,24 @@ def event_statuses(request, event_pk):
                 'user_pk': s.fk_user_created_by.pk})
     return JsonResponse(response, safe=False)
 
+def event_tasks(request, event_pk):
+    """
+    Get all the tasks associated on a given event.
+
+    @param  event_pk    Primary key of the event to get
+
+    @return     A JSON array containing the tasks JSON objects.
+    """
+    get_session_user(request)
+    event = get_object_or_404(Event, pk=event_pk)
+    response=[]
+    for t in Task.objects.filter(fk_event=event.pk):
+        response.append({'pk': t.pk,
+                'name': t.name,
+                'date_created': t.date_created,
+                'user_pk': t.fk_user_created_by.pk})
+    return JsonResponse(response, safe=False)
+
 def event_details(request, event_pk):
     """
     Get an event detailed information.

@@ -67,10 +67,19 @@ class Rank(models.Model):
 
 class Task(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=100)
+    description = models.CharField(max_length=100, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     fk_event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    fk_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    fk_user_created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def json_details(self):
+        return {'pk': self.pk,
+                'name': self.name,
+                'description': self.description,
+                'date_created': self.date_created,
+                'pk_event': self.fk_event.pk,
+                'pk_user_created_by': self.fk_user_created_by.pk
+        }
 
 class TaskItem(models.Model):
     name = models.CharField(max_length=50)

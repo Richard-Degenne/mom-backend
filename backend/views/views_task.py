@@ -42,42 +42,52 @@ def get_session_user(request):
     else:
         return action_user
 
-################
-# STATUS VIEWS #
-################
 
-def status_details(request, status_pk):
+##############
+# TASK VIEWS #
+##############
+def task_details(request, task_pk):
     """
-    Get a status detailed information.
+    Get a task detailed information.
 
-    @param  status_pk     Primary key of the status to get
+    @param  task_pk     Primary key of the task to get
 
     @return     A JSON object containing the requested info
-    or a 404 error if the status couldn't be found.
+    or a 404 error if the task couldn't be found.
 
-    @see Status.json_detail
+    @see Task.json_detail
     """
     get_session_user(request)
-    status = get_object_or_404(Status, pk=status_pk)
-    return JsonResponse(status.json_detail())
+    task = get_object_or_404(Task, pk=task_pk)
+    return JsonResponse(task.json_details())
 
-def status_create(request):
+def task_create(request):
     """
-    Register a new status in the database.
+    Register a new task in the database.
 
-    @return     A JSON object according the @ref status_details function
+    @return     A JSON object according the @ref task_details function
     or a 400 error on a bad request.
     """
     user = get_session_user(request)
+    # Set description to null if it is not given in the request or blank
     try:
-        status = Status.objects.create(content = request.POST['content'],
-                date_created = datetime.now(),
-                fk_event = get_object_or_404(Event, pk=request.POST['event_pk']),
+        if request.POST['description'] == '':
+            request.POST['description'] = None
+    except KeyError:
+        request.POST['description'] = None
+
+    try:
+        if request.POST['name']=='':
+            raise ValueError
+        task = Task.objects.create(name = request.POST['name'],
+                description = request.POST['description'],
+                date_created =datetime.now(),
+                fk_event=get_object_or_404(Event, pk=request.POST['event_pk']),
                 fk_user_created_by = user
         )
+    except ValueError as v:
+        return JsonResponse(json_error("Name cannot be empty"), status=400)
     except KeyError:
         return JsonResponse(json_error("Missing parameters"), status=400)
-    except IntegrityError:
-        return JsonResponse(json_error("Integrity error"), status=400)
     else:
-        return HttpResponseRedirect(reverse('backend:status_details', args=(status.pk,)))
+        return HttpResponseRedirect(reverse('backend:task_details', args=(task.pk,)))
