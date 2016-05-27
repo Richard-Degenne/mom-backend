@@ -46,6 +46,8 @@ urlpatterns = [
         url(r'task_item/(?P<task_item_pk>[0-9]+)', views_task_item.task_item_details, name='task_item_details'),
         # /task_item/create
         url(r'task_item/create', views_task_item.task_item_create, name='task_item_create'),
+        # /task_item/edit
+        url(r'task_item/edit', views_task_item.task_item_edit, name='task_item_edit'),
 
         ##########
         # STATUS #

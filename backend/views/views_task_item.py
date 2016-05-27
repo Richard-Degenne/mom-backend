@@ -67,6 +67,7 @@ def task_item_create(request):
     @return     A JSON object according the @ref user_detail function
     or a 400 error on a bad request.
     """
+    user = get_session_user(request)
     try:
         if request.POST['name'] == '':
             raise ValueError
@@ -81,3 +82,28 @@ def task_item_create(request):
         return JsonResponse(json_error("Missing parameters"), status=400)
     else:
         return HttpResponseRedirect(reverse('backend:task_item_details', args=(task_item.pk,)))
+
+def task_item_edit(request):
+    """
+    Edit an existing task item in the database.
+
+    @return     A JSON object according the @ref user_detail function
+    or a 400 error on a bad request.
+    """
+    user = get_session_user(request)
+    try:
+        task_item = get_object_or_404(TaskItem, pk=request.POST['task_item_pk'])
+    except KeyError:
+        return JsonResponse(json_error("Missing parameters"), status=400)
+    else:
+        try:
+            if request.POST['name'] == '':
+                request.POST['name'] = task_item.name
+        except KeyError:
+            request.POST['name'] = task_item.name
+
+    task_item.name = request.POST['name']
+    task_item.completed = request.POST.get('completed', task_item.completed)
+    task_item.save()
+
+    return HttpResponseRedirect(reverse('backend:task_item_details', args=(task_item.pk,)))
