@@ -64,6 +64,22 @@ def task_items(request, task_pk):
                 'date_created': i.date_created})
     return JsonResponse(response, safe=False)
 
+def task_add_user(request, task_pk):
+    """
+    Affects a new user to a given task.
+
+    @param  task_pk     Primary key of the task to get
+    """
+    user_request = get_session_user(request)
+    task = get_object_or_404(Task, pk=task_pk)
+    try:
+        user = get_object_or_404(User, pk=request.POST['user_pk'])
+    except KeyError:
+        return JsonResponse(json_error("Missing parameters"), status=400)
+    else:
+        IsAffectedTo.objects.create(fk_task=task, fk_user=user)
+        return HttpResponseRedirect(reverse('backend:task_details', args=(task.pk,)))
+
 def task_details(request, task_pk):
     """
     Get a task detailed information.

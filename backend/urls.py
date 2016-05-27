@@ -34,6 +34,8 @@ urlpatterns = [
         ########
         # /task/<pk_task>/items
         url(r'task/(?P<task_pk>[0-9]+)/items', views_task.task_items, name='task_items'),
+        # /task/<pk_task>/add_user
+        url(r'task/(?P<task_pk>[0-9]+)/add_user', views_task.task_add_user, name='task_add_user'),
         # /task/<pk_task>
         url(r'task/(?P<task_pk>[0-9]+)', views_task.task_details, name='task_details'),
         # /task/create
