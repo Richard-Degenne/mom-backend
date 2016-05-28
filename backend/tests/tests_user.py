@@ -39,7 +39,7 @@ class UserDetailsTests(TestCase):
                 password='******',
                 email='testing.tester@mom.com',
                 phone_number='000-000-0000')
-        self.client.session['user_pk'] = u.pk
+        self.client.session['pk_user'] = u.pk
 
     def test_unknown_user(self):
         """
@@ -74,7 +74,7 @@ class UserEventsTests(TestCase):
                 password='******',
                 email='testing.tester@mom.com',
                 phone_number='000-000-0000')
-        self.client.session['user_pk'] = u.pk
+        self.client.session['pk_user'] = u.pk
 
 class UserRegisterTests(TestCase):
     def register(self, params):
@@ -263,7 +263,7 @@ class UserSignInTests(TestCase):
         response = self.client.post(reverse('backend:sign_in'), {'email':user.email, 'password':user.password})
         self.assertEqual(response.status_code, 200)
         self.assertDictContainsSubset({'status': 'success'}, response.json())
-        self.assertDictContainsSubset({'user_pk': user.pk}, response.json())
+        self.assertDictContainsSubset({'pk_user': user.pk}, response.json())
 
     def test_sign_in_no_email(self):
         """

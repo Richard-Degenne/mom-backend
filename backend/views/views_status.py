@@ -7,40 +7,9 @@ from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
 
 from backend.models import *
+from backend.views.helpers import *
 
 # Create your views here.
-
-####################
-# HELPER FUNCTIONS #
-####################
-
-def json_error(message):
-    """
-    Generates a JSON object to indicate an error.
-
-    @param  message     The message to associate to the error.
-
-    @return A JSON object with the following structure:
-    {'status': "failure", 'message': <message>}
-    """
-    return {'status': "failure",
-            'message': message
-    }
-
-def get_session_user(request):
-    """
-    Checks in the session variable wether the client making the request
-    is logged in.
-
-    @return     On success, the User object associated with the session.
-    On failure, return a 401 error.
-    """
-    try:
-        action_user = User.objects.get(pk=request.session['user_pk'])
-    except (KeyError, User.DoesNotExist):
-        return JsonResponse(json_error("Unauthorized"), status=401)
-    else:
-        return action_user
 
 ################
 # STATUS VIEWS #
@@ -72,7 +41,7 @@ def status_create(request):
     try:
         status = Status.objects.create(content = request.POST['content'],
                 date_created = datetime.now(),
-                fk_event = get_object_or_404(Event, pk=request.POST['event_pk']),
+                fk_event = get_object_or_404(Event, pk=request.POST['pk_event']),
                 fk_user_created_by = user
         )
     except KeyError:

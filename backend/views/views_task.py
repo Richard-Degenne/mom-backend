@@ -7,41 +7,9 @@ from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
 
 from backend.models import *
+from backend.views.helpers import *
 
 # Create your views here.
-
-####################
-# HELPER FUNCTIONS #
-####################
-
-def json_error(message):
-    """
-    Generates a JSON object to indicate an error.
-
-    @param  message     The message to associate to the error.
-
-    @return A JSON object with the following structure:
-    {'status': "failure", 'message': <message>}
-    """
-    return {'status': "failure",
-            'message': message
-    }
-
-def get_session_user(request):
-    """
-    Checks in the session variable wether the client making the request
-    is logged in.
-
-    @return     On success, the User object associated with the session.
-    On failure, return a 401 error.
-    """
-    try:
-        action_user = User.objects.get(pk=request.session['user_pk'])
-    except (KeyError, User.DoesNotExist):
-        return JsonResponse(json_error("Unauthorized"), status=401)
-    else:
-        return action_user
-
 
 ##############
 # TASK VIEWS #
@@ -79,7 +47,7 @@ def task_comments(request, task_pk):
         response.append({'pk': c.pk,
                 'content': c.content,
                 'date_created': c.date_created,
-                'pk_user': c.fk_user_created_by.pk})
+                'pk_user_created_by': c.fk_user_created_by.pk})
     return JsonResponse(response, safe=False)
 
 def task_add_user(request, task_pk):
@@ -91,7 +59,7 @@ def task_add_user(request, task_pk):
     user_request = get_session_user(request)
     task = get_object_or_404(Task, pk=task_pk)
     try:
-        user = get_object_or_404(User, pk=request.POST['user_pk'])
+        user = get_object_or_404(User, pk=request.POST['pk_user'])
     except KeyError:
         return JsonResponse(json_error("Missing parameters"), status=400)
     else:

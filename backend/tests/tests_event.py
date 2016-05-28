@@ -25,19 +25,20 @@ class EventMethodsTests(TestCase):
                 password='******',
                 email='david.smith@mom.com',
                 phone_number='012-345-6789')
+        current_time = datetime.now()
         e = Event(name = "Birthday party",
                 description = "Come to celebrate David Smith's birthday!",
-                date = datetime.now()+timezone.timedelta(days=1),
+                date = current_time+timezone.timedelta(days=1),
                 place_event = "David's place",
-                date_created = datetime.now(),
-                fk_user_created_by = u.pk)
-        self.assertDictEqual(u.json_detail(), {'pk':None,
-                name: "Birthday party",
-                description: "Come to celebrate David Smith's birthday!",
-                date: datetime.now()+timezone.timedelta(days=1),
-                place_event: "David's place",
-                date_created: datetime.now(),
-                fk_user_created_by: u.pk})
+                date_created = current_time,
+                fk_user_created_by = u)
+        self.assertDictEqual(e.json_detail(), {'pk':None,
+                'name': "Birthday party",
+                'description': "Come to celebrate David Smith's birthday!",
+                'date': current_time+timezone.timedelta(days=1),
+                'place_event': "David's place",
+                'date_created': current_time,
+                'pk_user_created_by': u.pk})
 
 class EventDetailsTests(TestCase):
     def sign_in(self):

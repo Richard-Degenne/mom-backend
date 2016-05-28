@@ -7,40 +7,9 @@ from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
 
 from backend.models import *
+from backend.views.helpers import *
 
 # Create your views here.
-
-####################
-# HELPER FUNCTIONS #
-####################
-
-def json_error(message):
-    """
-    Generates a JSON object to indicate an error.
-
-    @param  message     The message to associate to the error.
-
-    @return A JSON object with the following structure:
-    {'comment': "failure", 'message': <message>}
-    """
-    return {'comment': "failure",
-            'message': message
-    }
-
-def get_session_user(request):
-    """
-    Checks in the session variable wether the client making the request
-    is logged in.
-
-    @return     On success, the User object associated with the session.
-    On failure, return a 401 error.
-    """
-    try:
-        action_user = User.objects.get(pk=request.session['user_pk'])
-    except (KeyError, User.DoesNotExist):
-        return JsonResponse(json_error("Unauthorized"), comment=401)
-    else:
-        return action_user
 
 #################
 # COMMENT VIEWS #
@@ -72,7 +41,7 @@ def comment_create(request):
     try:
         comment = Comment.objects.create(content = request.POST['content'],
                 date_created = datetime.now(),
-                fk_task = get_object_or_404(Task, pk=request.POST['task_pk']),
+                fk_task = get_object_or_404(Task, pk=request.POST['pk_task']),
                 fk_user_created_by = user
         )
     except KeyError:

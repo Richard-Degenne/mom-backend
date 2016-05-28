@@ -9,7 +9,7 @@ urlpatterns = [
         # USER #
         ########
         #/user/<pk_user>/events
-        url('user/(?P<user_pk>[0-9]+)/events', views_user.user_events, name='user_events'),
+        url(r'user/(?P<user_pk>[0-9]+)/events', views_user.user_events, name='user_events'),
         # /user/<pk_user>
         url(r'user/(?P<user_pk>[0-9]+)', views_user.user_details, name='user_details'),
         # /register

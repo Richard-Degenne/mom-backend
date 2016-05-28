@@ -7,40 +7,9 @@ from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
 
 from backend.models import *
+from backend.views.helpers import *
 
 # Create your views here.
-
-####################
-# HELPER FUNCTIONS #
-####################
-
-def json_error(message):
-    """
-    Generates a JSON object to indicate an error.
-
-    @param  message     The message to associate to the error.
-
-    @return A JSON object with the following structure:
-    {'status': "failure", 'message': <message>}
-    """
-    return {'status': "failure",
-            'message': message
-    }
-
-def get_session_user(request):
-    """
-    Checks in the session variable wether the client making the request
-    is logged in.
-
-    @return     On success, the User object associated with the session.
-    On failure, return a 401 error.
-    """
-    try:
-        action_user = User.objects.get(pk=request.session['user_pk'])
-    except (KeyError, User.DoesNotExist):
-        return JsonResponse(json_error("Unauthorized"), status=401)
-    else:
-        return action_user
 
 ###############
 # EVENT VIEWS #
@@ -61,7 +30,7 @@ def event_statuses(request, event_pk):
         response.append({'pk': s.pk,
                 'content': s.content,
                 'date_created': s.date_created,
-                'user_pk': s.fk_user_created_by.pk})
+                'pk_user_created_by': s.fk_user_created_by.pk})
     return JsonResponse(response, safe=False)
 
 def event_tasks(request, event_pk):
@@ -79,7 +48,7 @@ def event_tasks(request, event_pk):
         response.append({'pk': t.pk,
                 'name': t.name,
                 'date_created': t.date_created,
-                'user_pk': t.fk_user_created_by.pk})
+                'pk_user_created_by': t.fk_user_created_by.pk})
     return JsonResponse(response, safe=False)
 
 def event_details(request, event_pk):

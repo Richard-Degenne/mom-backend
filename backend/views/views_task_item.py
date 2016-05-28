@@ -7,40 +7,9 @@ from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
 
 from backend.models import *
+from backend.views.helpers import *
 
 # Create your views here.
-
-####################
-# HELPER FUNCTIONS #
-####################
-
-def json_error(message):
-    """
-    Generates a JSON object to indicate an error.
-
-    @param  message     The message to associate to the error.
-
-    @return A JSON object with the following structure:
-    {'status': "failure", 'message': <message>}
-    """
-    return {'status': "failure",
-            'message': message
-    }
-
-def get_session_user(request):
-    """
-    Checks in the session variable wether the client making the request
-    is logged in.
-
-    @return     On success, the User object associated with the session.
-    On failure, return a 401 error.
-    """
-    try:
-        action_user = User.objects.get(pk=request.session['user_pk'])
-    except (KeyError, User.DoesNotExist):
-        return JsonResponse(json_error("Unauthorized"), status=401)
-    else:
-        return action_user
 
 ###################
 # TASK ITEM VIEWS #
@@ -73,7 +42,7 @@ def task_item_create(request):
             raise ValueError
         task_item = TaskItem.objects.create(name = request.POST['name'],
                 completed = False,
-                fk_task = get_object_or_404(Task, pk=request.POST['task_pk']),
+                fk_task = get_object_or_404(Task, pk=request.POST['pk_task']),
                 date_created = datetime.now()
         )
     except ValueError:
@@ -92,7 +61,7 @@ def task_item_edit(request):
     """
     user = get_session_user(request)
     try:
-        task_item = get_object_or_404(TaskItem, pk=request.POST['task_item_pk'])
+        task_item = get_object_or_404(TaskItem, pk=request.POST['pk_task_item'])
     except KeyError:
         return JsonResponse(json_error("Missing parameters"), status=400)
     else:
