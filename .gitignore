@@ -1,3 +1,7 @@
 *.pyo
 *.pyc
+*.swo
+*.swp
 secrets.py
+
+script.py

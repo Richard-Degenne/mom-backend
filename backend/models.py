@@ -36,6 +36,25 @@ class Event(models.Model):
     place_event = models.CharField(max_length=100)
     fk_user_created_by=models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    def json_detail(self):
+        """
+        Gives a dictionnary containing the main information about an Event.
+
+        @ return A dictionnary in the following format:
+        `{'pk':pk, 'name':name, 'description':description, 'date':date,
+        'place_event':place_event, 'date_created': date_created,
+        'pk_user_created': fk_user_created_by}`
+        """
+        return {
+                'pk': self.pk,
+                'name': self.name,
+                'description': self.description,
+                'date': self.date,
+                'place_event': self.place_event,
+                'date_created': self.date_created,
+                'pk_user_created_by': self.fk_user_created_by.pk
+        }
+
 class Network(models.Model):
     name = models.CharField(max_length=50)
 
@@ -48,10 +67,19 @@ class Rank(models.Model):
 
 class Task(models.Model):
     name = models.CharField(max_length=50)
-    description = models.CharField(max_length=100)
+    description = models.CharField(max_length=100, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     fk_event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    fk_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    fk_user_created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def json_detail(self):
+        return {'pk': self.pk,
+                'name': self.name,
+                'description': self.description,
+                'date_created': self.date_created,
+                'pk_event': self.fk_event.pk,
+                'pk_user_created_by': self.fk_user_created_by.pk
+        }
 
 class TaskItem(models.Model):
     name = models.CharField(max_length=50)
@@ -59,11 +87,27 @@ class TaskItem(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     fk_task = models.ForeignKey(Task, on_delete=models.CASCADE)
 
+    def json_detail(self):
+        return {'pk': self.pk,
+                'name': self.name,
+                'completed': self.completed,
+                'date_created': self.date_created,
+                'pk_task': self.fk_task.pk
+        }
+
 class Comment(models.Model):
     content = models.CharField(max_length=250)
     date_created = models.DateTimeField(auto_now_add=True)
     fk_task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    fk_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    fk_user_created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def json_detail(self):
+        return {'pk': self.pk,
+                'content': self.content,
+                'date_created': self.date_created,
+                'pk_task': self.fk_task.pk,
+                'pk_user_created_by': self.fk_user_created_by.pk
+        }
 
 class Invitation(models.Model):
     content = models.CharField(max_length=250)
@@ -82,7 +126,15 @@ class Status(models.Model):
     content = models.CharField(max_length=250)
     date_created = models.DateTimeField(auto_now_add=True)
     fk_event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    fk_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    fk_user_created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def json_detail(self):
+        return {'pk': self.pk,
+                'content': self.content,
+                'date_created': self.date_created,
+                'pk_event': self.fk_event.pk,
+                'pk_user_created_by': self.fk_user.pk
+        }
 
 class IsSyncedWith(models.Model):
     user_token = models.CharField(max_length=50) # Maybe 50 is too much?
