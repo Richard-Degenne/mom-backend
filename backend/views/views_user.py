@@ -40,7 +40,7 @@ def user_events(request, user_pk):
     user = get_object_or_404(User, pk=user_pk)
     response = []
     for e in Event.objects.filter(fk_user_created_by=user.pk):
-        response.append({'pk_event':e.pk, 'name':e.name})
+        response.append(e.json_detail())
     return JsonResponse(response, safe=False)
 
 def user_register(request):
