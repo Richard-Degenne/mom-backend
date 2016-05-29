@@ -62,8 +62,10 @@ class Rank(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=100)
     date_created = models.DateTimeField(auto_now_add=True)
+    is_attendee = models.BooleanField(null=False, default=True)
+    is_organiser = models.BooleanField(null=False, default=False)
+    is_admin = models.BooleanField(null=False, default=False)
     fk_event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    # We'll need to add booleans for every single authorization
 
 class Task(models.Model):
     name = models.CharField(max_length=50)
