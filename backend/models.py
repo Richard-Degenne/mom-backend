@@ -28,6 +28,14 @@ class User(models.Model):
                 'phone_number': self.phone_number
         }
 
+    def has_attendee_right(self, pk_event):
+        try:
+            invitation = Invitation.objects.get(fk_user_invited = self.pk, fk_event = pk_event)
+            return invitation.fk_rank.is_attendee or invitation.fk_rank.is_organiser or invitation.fk_rank.is_admin
+        except Invitation.DoesNotExist:
+            return False
+        
+
 class Event(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=250)

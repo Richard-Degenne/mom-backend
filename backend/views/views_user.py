@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
+from django.db.models import Q
 from django.core.urlresolvers import reverse
 
 from backend.models import *
@@ -29,7 +30,7 @@ def user_details(request, user_pk):
 
 def user_events(request, user_pk):
     """
-    Get the events whose creator is the given user.
+    Get the events a given user has access to.
 
     @param  user_pk     Primary key of the user to get
 
@@ -38,9 +39,20 @@ def user_events(request, user_pk):
     """
     get_session_user(request)
     user = get_object_or_404(User, pk=user_pk)
-    response = []
-    for e in Event.objects.filter(fk_user_created_by=user.pk):
-        response.append({'pk_event':e.pk, 'name':e.name})
+    response = {}
+    response['events'] = []
+    events = Event.objects.filter(Q(fk_user_created_by = user.pk) |
+            Q(pk__in = Invitation.objects.filter(fk_user_invited=user.pk, status='A')
+            .values_list('fk_event__pk', flat=True)))
+    for e in events:
+        data = {}
+        data['event'] = e.json_detail()
+        if(e.fk_user_created_by != user):
+            invitation = Invitation.objects.get(fk_event = e, fk_user_invited = user)
+            data['rank'] = invitation.fk_rank.json_detail()
+        else:
+            data['rank'] = {}
+        response['events'].append(data)
     return JsonResponse(response, safe=False)
 
 def user_register(request):
