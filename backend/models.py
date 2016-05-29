@@ -67,6 +67,16 @@ class Rank(models.Model):
     is_admin = models.BooleanField(null=False, default=False)
     fk_event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
+    def json_detail(self):
+        return {'pk': self.pk,
+                'description': self.description,
+                'is_attendee': self.is_attendee,
+                'is_organiser': self.is_organiser,
+                'is_admin': self.is_admin,
+                'pk_event': self.fk_event.pk,
+                'date_created': self.date_created
+        }
+
 class Task(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=100, null=True)
@@ -123,6 +133,17 @@ class Invitation(models.Model):
     fk_user_created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='user_creator')
     fk_user_invited = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_invited')
     fk_rank = models.ForeignKey(Rank, on_delete=models.CASCADE)
+
+    def json_detail(self):
+        return {'pk': self.pk,
+                'content': self.content,
+                'status': self.status,
+                'date_created': self.date_created,
+                'pk_event': self.fk_event.pk,
+                'pk_rank': self.fk_rank.pk,
+                'pk_user_created_by': self.fk_user_created_by.pk,
+                'pk_user_invited': self.fk_user_invited.pk
+        }
 
 class Status(models.Model):
     content = models.CharField(max_length=250)

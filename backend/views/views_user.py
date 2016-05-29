@@ -91,6 +91,6 @@ def user_sign_in(request):
     except User.DoesNotExist:
         return JsonResponse(json_error("Incorrect email/password"), status=401)
     else:
-        request.session['user_pk'] = user.pk
+        request.session['pk_user'] = user.pk
         return JsonResponse({'status':'success', 'pk_user':user.pk})
 

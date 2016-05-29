@@ -51,6 +51,36 @@ def event_tasks(request, event_pk):
                 'pk_user_created_by': t.fk_user_created_by.pk})
     return JsonResponse(response, safe=False)
 
+def event_invitations(request, event_pk):
+    """
+    Get all the invitations associated on a given event.
+
+    @param  event_pk    Primary key of the event to get
+
+    @return     A JSON array containing the invitations JSON objects.
+    """
+    get_session_user(request)
+    event = get_object_or_404(Event, pk=event_pk)
+    response=[]
+    for i in Invitation.objects.filter(fk_event=event.pk):
+        response.append(i.json_detail())
+    return JsonResponse(response, safe=False)
+
+def event_ranks(request, event_pk):
+    """
+    Get all the ranks associated on a given event.
+
+    @param  event_pk    Primary key of the event to get
+
+    @return     A JSON array containing the ranks JSON objects.
+    """
+    get_session_user(request)
+    event = get_object_or_404(Event, pk=event_pk)
+    response=[]
+    for r in Rank.objects.filter(fk_event=event.pk):
+        response.append(r.json_detail())
+    return JsonResponse(response, safe=False)
+
 def event_details(request, event_pk):
     """
     Get an event detailed information.
@@ -84,6 +114,17 @@ def event_create(request):
                 place_event = request.POST.get('place', ''),
                 fk_user_created_by = user
         )
+        Rank.objects.create(
+                name='Attendee',
+                description='Someone who is going to the event.',
+                date_created = datetime.now(),
+                fk_event = event)
+        Rank.objects.create(
+                name='Organiser',
+                description='Someone who organises the event.',
+                is_organiser=True,
+                date_created = datetime.now(),
+                fk_event = event)
     except ValueError as v:
         print(v)
         return JsonResponse(json_error("Name cannot be empty"), status=400)
