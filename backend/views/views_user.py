@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
+from django.db.models import Q
 from django.core.urlresolvers import reverse
 
 from backend.models import *
@@ -38,9 +39,10 @@ def user_events(request, user_pk):
     """
     get_session_user(request)
     user = get_object_or_404(User, pk=user_pk)
-    response = []
+    response = {}
+    response['events'] = []
     for e in Event.objects.filter(fk_user_created_by=user.pk):
-        response.append(e.json_detail())
+        response['events'].append(e.json_detail())
     return JsonResponse(response, safe=False)
 
 def user_register(request):

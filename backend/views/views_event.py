@@ -25,13 +25,14 @@ def event_statuses(request, event_pk):
     """
     get_session_user(request)
     event = get_object_or_404(Event, pk=event_pk)
-    response=[]
+    response={}
+    response['statuses']=[]
     for s in Status.objects.filter(fk_event=event.pk):
-        response.append({'pk': s.pk,
+        response['statuses'].append({'pk': s.pk,
                 'content': s.content,
                 'date_created': s.date_created,
                 'pk_user_created_by': s.fk_user_created_by.pk})
-    return JsonResponse(response, safe=False)
+    return JsonResponse(response)
 
 def event_tasks(request, event_pk):
     """
@@ -43,9 +44,10 @@ def event_tasks(request, event_pk):
     """
     get_session_user(request)
     event = get_object_or_404(Event, pk=event_pk)
-    response=[]
+    response={}
+    response['tasks'] = []
     for t in Task.objects.filter(fk_event=event.pk):
-        response.append({'pk': t.pk,
+        response['tasks'].append({'pk': t.pk,
                 'name': t.name,
                 'date_created': t.date_created,
                 'pk_user_created_by': t.fk_user_created_by.pk})
