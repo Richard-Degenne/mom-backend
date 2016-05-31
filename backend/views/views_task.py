@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 
 from backend.models import *
 from backend.views.helpers import *
@@ -22,8 +23,10 @@ def task_items(request, task_pk):
 
     @return     A JSON array containing all the items JSON objects.
     """
-    get_session_user(request)
+    user = get_session_user(request)
     task = get_object_or_404(Task, pk=task_pk)
+    if not user.has_organiser_access(task.fk_event):
+        raise PermissionDenied
     response=[]
     for i in TaskItem.objects.filter(fk_task=task):
         response.append({'pk': i.pk,
@@ -40,8 +43,10 @@ def task_comments(request, task_pk):
 
     @return     A JSON array containing all the comments JSON objects.
     """
-    get_session_user(request)
+    user = get_session_user(request)
     task = get_object_or_404(Task, pk=task_pk)
+    if not user.has_organiser_access(task.fk_event):
+        raise PermissionDenied
     response=[]
     for c in Comment.objects.filter(fk_task=task):
         response.append({'pk': c.pk,
@@ -58,6 +63,8 @@ def task_add_user(request, task_pk):
     """
     user_request = get_session_user(request)
     task = get_object_or_404(Task, pk=task_pk)
+    if not user_request.has_organiser_access(task.fk_event):
+        raise PermissionDenied
     try:
         user = get_object_or_404(User, pk=request.POST['pk_user'])
     except KeyError:
@@ -77,8 +84,10 @@ def task_details(request, task_pk):
 
     @see Task.json_detail
     """
-    get_session_user(request)
+    user = get_session_user(request)
     task = get_object_or_404(Task, pk=task_pk)
+    if not user.has_organiser_access(task.fk_event):
+        raise PermissionDenied
     return JsonResponse(task.json_detail())
 
 def task_create(request):
@@ -91,6 +100,8 @@ def task_create(request):
     user = get_session_user(request)
     # Set description to null if it is not given in the request or blank
     try:
+        if not user.has_organiser_access(get_object_or_404(request.POST['pk_event'])):
+            raise PermissionDenied
         if request.POST['description'] == '':
             request.POST['description'] = None
     except KeyError:
@@ -102,7 +113,7 @@ def task_create(request):
         task = Task.objects.create(name = request.POST['name'],
                 description = request.POST['description'],
                 date_created =datetime.now(),
-                fk_event=get_object_or_404(Event, pk=request.POST['event_pk']),
+                fk_event=get_object_or_404(Event, pk=request.POST['pk_event']),
                 fk_user_created_by = user
         )
     except ValueError as v:

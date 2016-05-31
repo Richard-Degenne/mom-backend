@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
+from django.db.models import Q
 from django.core.urlresolvers import reverse
 
 from backend.models import *
@@ -23,13 +24,16 @@ def user_details(request, user_pk):
 
     @see User.json_detail
     """
-    get_session_user(request)
+    user_request = get_session_user(request)
     user = get_object_or_404(User, pk=user_pk)
-    return JsonResponse(user.json_detail())
+    if user == user_request:
+        return JsonResponse(user.json_detail())
+    else:
+        return JsonResponse(user.json_detail_public())
 
 def user_events(request, user_pk):
     """
-    Get the events whose creator is the given user.
+    Get the events a given user has access to.
 
     @param  user_pk     Primary key of the user to get
 
@@ -38,9 +42,20 @@ def user_events(request, user_pk):
     """
     get_session_user(request)
     user = get_object_or_404(User, pk=user_pk)
-    response = []
-    for e in Event.objects.filter(fk_user_created_by=user.pk):
-        response.append(e.json_detail())
+    response = {}
+    response['events'] = []
+    events = Event.objects.filter(Q(fk_user_created_by = user.pk) |
+            Q(pk__in = Invitation.objects.filter(fk_user_invited=user.pk, status='A')
+            .values_list('fk_event__pk', flat=True)))
+    for e in events:
+        data = {}
+        data['event'] = e.json_detail()
+        if(e.fk_user_created_by != user):
+            invitation = Invitation.objects.get(fk_event = e, fk_user_invited = user)
+            data['rank'] = invitation.fk_rank.json_detail()
+        else:
+            data['rank'] = {}
+        response['events'].append(data)
     return JsonResponse(response, safe=False)
 
 def user_register(request):
@@ -91,6 +106,6 @@ def user_sign_in(request):
     except User.DoesNotExist:
         return JsonResponse(json_error("Incorrect email/password"), status=401)
     else:
-        request.session['user_pk'] = user.pk
+        request.session['pk_user'] = user.pk
         return JsonResponse({'status':'success', 'pk_user':user.pk})
 

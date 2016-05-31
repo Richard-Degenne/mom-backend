@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .views import views_user, views_event, views_status, views_task, views_task_item, views_comment
+from .views import views_user, views_event, views_status, views_task, views_task_item, views_comment, views_rank, views_invitation
 
 app_name='backend'
 
@@ -24,10 +24,22 @@ urlpatterns = [
         url(r'event/(?P<event_pk>[0-9]+)/statuses', views_event.event_statuses, name='event_statuses'),
         # /event/<pk_event>/tasks
         url(r'event/(?P<event_pk>[0-9]+)/tasks', views_event.event_tasks, name='event_tasks'),
+        # /event/<pk_event>/invitations
+        url(r'event/(?P<event_pk>[0-9]+)/invitations', views_event.event_invitations, name='event_invitations'),
+        # /event/<pk_event>/ranks
+        url(r'event/(?P<event_pk>[0-9]+)/ranks', views_event.event_ranks, name='event_ranks'),
         # /event/<pk_event>
         url(r'event/(?P<event_pk>[0-9]+)', views_event.event_details, name='event_details'),
         # /event/create
         url(r'event/create', views_event.event_create, name='event_create'),
+
+        ########
+        # RANK #
+        ########
+        # /rank/create
+        url(r'rank/create', views_rank.rank_create, name='rank_create'),
+        # /rank/<pk_rank>
+        url(r'rank/(?P<rank_pk>[0-9]+)', views_rank.rank_details, name='rank_details'),
 
         ########
         # TASK #
@@ -60,6 +72,16 @@ urlpatterns = [
         url(r'comment/create', views_comment.comment_create, name='comment_create'),
         # /comment/<pk_comment>
         url(r'comment/(?P<comment_pk>[0-9]+)', views_comment.comment_details, name='comment_details'),
+
+        ##############
+        # INVITATION #
+        ##############
+        # /invitation/create
+        url(r'invitation/create', views_invitation.invitation_create, name='invitation_create'),
+        # /invitation/<pk_invitation>
+        url(r'invitation/(?P<invitation_pk>[0-9]+)', views_invitation.invitation_details, name='invitation_details'),
+        # /invitation/edit
+        url(r'invitation/edit', views_invitation.invitation_edit, name='invitation_edit'),
 
         ##########
         # STATUS #

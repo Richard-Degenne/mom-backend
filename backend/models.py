@@ -28,6 +28,47 @@ class User(models.Model):
                 'phone_number': self.phone_number
         }
 
+    def json_detail_public(self):
+        """
+        Gives a dictionnary containing the public information about a User.
+
+        @ return A dictionnary in the following format:
+        `{'pk':pk, 'first_name':first_name, 'last_name':last_name}`
+        """
+        return {
+                'pk': self.pk,
+                'first_name': self.first_name,
+                'last_name': self.last_name,
+        }
+
+    def has_attendee_access(self, event):
+        if event.fk_user_created_by == self:
+            return True
+        try:
+            invitation = Invitation.objects.get(fk_user_invited = self.pk, fk_event = event.pk)
+            return invitation.fk_rank.is_attendee or invitation.fk_rank.is_organiser or invitation.fk_rank.is_admin
+        except Invitation.DoesNotExist:
+            return False
+
+    def has_organiser_access(self, event):
+        if event.fk_user_created_by == self:
+            return True
+        try:
+            invitation = Invitation.objects.get(fk_user_invited = self.pk, fk_event = event.pk)
+            return invitation.fk_rank.is_organiser or invitation.fk_rank.is_admin
+        except Invitation.DoesNotExist:
+            return False
+
+    def has_admin_access(self, event):
+        if event.fk_user_created_by == self:
+            return True
+        try:
+            invitation = Invitation.objects.get(fk_user_invited = self.pk, fk_event = event.pk)
+            return invitation.fk_rank.is_admin
+        except Invitation.DoesNotExist:
+            return False
+        
+
 class Event(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=250)
@@ -62,8 +103,20 @@ class Rank(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=100)
     date_created = models.DateTimeField(auto_now_add=True)
+    is_attendee = models.BooleanField(null=False, default=True)
+    is_organiser = models.BooleanField(null=False, default=False)
+    is_admin = models.BooleanField(null=False, default=False)
     fk_event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    # We'll need to add booleans for every single authorization
+
+    def json_detail(self):
+        return {'pk': self.pk,
+                'description': self.description,
+                'is_attendee': self.is_attendee,
+                'is_organiser': self.is_organiser,
+                'is_admin': self.is_admin,
+                'pk_event': self.fk_event.pk,
+                'date_created': self.date_created
+        }
 
 class Task(models.Model):
     name = models.CharField(max_length=50)
@@ -121,6 +174,17 @@ class Invitation(models.Model):
     fk_user_created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='user_creator')
     fk_user_invited = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_invited')
     fk_rank = models.ForeignKey(Rank, on_delete=models.CASCADE)
+
+    def json_detail(self):
+        return {'pk': self.pk,
+                'content': self.content,
+                'status': self.status,
+                'date_created': self.date_created,
+                'pk_event': self.fk_event.pk,
+                'pk_rank': self.fk_rank.pk,
+                'pk_user_created_by': self.fk_user_created_by.pk,
+                'pk_user_invited': self.fk_user_invited.pk
+        }
 
 class Status(models.Model):
     content = models.CharField(max_length=250)
