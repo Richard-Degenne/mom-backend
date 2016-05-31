@@ -24,9 +24,12 @@ def user_details(request, user_pk):
 
     @see User.json_detail
     """
-    get_session_user(request)
+    user_request = get_session_user(request)
     user = get_object_or_404(User, pk=user_pk)
-    return JsonResponse(user.json_detail())
+    if user == user_request:
+        return JsonResponse(user.json_detail())
+    else:
+        return JsonResponse(user.json_detail_public())
 
 def user_events(request, user_pk):
     """

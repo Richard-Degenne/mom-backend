@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 
 from backend.models import *
 from backend.views.helpers import *
@@ -26,8 +27,10 @@ def rank_details(request, rank_pk):
 
     @see Rank.json_detail
     """
-    get_session_user(request)
+    user = get_session_user(request)
     rank = get_object_or_404(Rank, pk=rank_pk)
+    if not user.has_organiser_access(rank.fk_event):
+        raise PermissionDenied
     return JsonResponse(rank.json_detail())
 
 def rank_create(request):
@@ -39,6 +42,8 @@ def rank_create(request):
     """
     user = get_session_user(request)
     try:
+        if not user.has_organiser_access(get_object_or_404(Event, pk=request.POST['pk_event'])):
+            raise PermissionDenied
         rank = Rank.objects.create(name = request.POST['name'],
                 description = request.POST.get('descripion', ''),
                 date_created = datetime.now(),

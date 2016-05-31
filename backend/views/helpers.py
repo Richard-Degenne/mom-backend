@@ -1,6 +1,6 @@
 from backend.models import User
 
-from django.http import JsonResponse
+from django.core.exceptions import PermissionDenied
 
 ####################
 # HELPER FUNCTIONS #
@@ -30,6 +30,6 @@ def get_session_user(request):
     try:
         action_user = User.objects.get(pk=request.session['pk_user'])
     except (KeyError, User.DoesNotExist):
-        return JsonResponse(json_error("Unauthorized"), status=401)
+        raise PermissionDenied
     else:
         return action_user

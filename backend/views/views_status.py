@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 
 from backend.models import *
 from backend.views.helpers import *
@@ -26,8 +27,10 @@ def status_details(request, status_pk):
 
     @see Status.json_detail
     """
-    get_session_user(request)
+    user = get_session_user(request)
     status = get_object_or_404(Status, pk=status_pk)
+    if not user.has_attendee_access(status.fk_event):
+        raise PermissionDenied
     return JsonResponse(status.json_detail())
 
 def status_create(request):
@@ -39,6 +42,8 @@ def status_create(request):
     """
     user = get_session_user(request)
     try:
+        if not user.has_organiser_access(get_object_or_404(Event, pk=request.POST['pk_event'])):
+            raise PermissionDenied
         status = Status.objects.create(content = request.POST['content'],
                 date_created = datetime.now(),
                 fk_event = get_object_or_404(Event, pk=request.POST['pk_event']),

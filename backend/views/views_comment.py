@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 
 from backend.models import *
 from backend.views.helpers import *
@@ -26,19 +27,23 @@ def comment_details(request, comment_pk):
 
     @see Comment.json_detail
     """
-    get_session_user(request)
+    user = get_session_user(request)
     comment = get_object_or_404(Comment, pk=comment_pk)
+    if(not user.has_organiser_access(comment.fk_task.fk_event)):
+        raise PermissionDenied
     return JsonResponse(comment.json_detail())
 
 def comment_create(request):
     """
     Register a new comment in the database.
 
-    @return     A JSON object according the @ref comment_details function
-    or a 400 error on a bad request.
+    @return     A JSON object according the @ref comment_details function, 400 error on a bad request or a 403 error on a forbidden access.
     """
     user = get_session_user(request)
     try:
+        task = get_object_or_404(Task, request.POST['pk_task'])
+        if(not user.has_organiser_access(task.fk_event)):
+            raise PermissionDenied
         comment = Comment.objects.create(content = request.POST['content'],
                 date_created = datetime.now(),
                 fk_task = get_object_or_404(Task, pk=request.POST['pk_task']),

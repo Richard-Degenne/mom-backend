@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 
 from backend.models import *
 from backend.views.helpers import *
@@ -25,8 +26,10 @@ def task_item_details(request, task_item_pk):
 
     @see TaskItem.json_detail
     """
-    get_session_user(request)
+    user = get_session_user(request)
     task_item = get_object_or_404(TaskItem, pk=task_item_pk)
+    if not user.has_organiser_access(task_item.fk_task.fk_event):
+        raise PermissionDenied
     return JsonResponse(task_item.json_detail())
 
 def task_item_create(request):
@@ -38,6 +41,9 @@ def task_item_create(request):
     """
     user = get_session_user(request)
     try:
+        task = get_object_or_404(Task, pk=request.POST['pk_task'])
+        if not user.has_organiser_access(task.fk_event):
+            raise PermissionDenied
         if request.POST['name'] == '':
             raise ValueError
         task_item = TaskItem.objects.create(name = request.POST['name'],
@@ -62,6 +68,8 @@ def task_item_edit(request):
     user = get_session_user(request)
     try:
         task_item = get_object_or_404(TaskItem, pk=request.POST['pk_task_item'])
+        if not user.has_organiser_access(task_item.fk_task.fk_event):
+            raise PermissionDenied
     except KeyError:
         return JsonResponse(json_error("Missing parameters"), status=400)
     else:

@@ -28,10 +28,43 @@ class User(models.Model):
                 'phone_number': self.phone_number
         }
 
-    def has_attendee_right(self, pk_event):
+    def json_detail_public(self):
+        """
+        Gives a dictionnary containing the public information about a User.
+
+        @ return A dictionnary in the following format:
+        `{'pk':pk, 'first_name':first_name, 'last_name':last_name}`
+        """
+        return {
+                'pk': self.pk,
+                'first_name': self.first_name,
+                'last_name': self.last_name,
+        }
+
+    def has_attendee_access(self, event):
+        if event.fk_user_created_by == self:
+            return True
         try:
-            invitation = Invitation.objects.get(fk_user_invited = self.pk, fk_event = pk_event)
+            invitation = Invitation.objects.get(fk_user_invited = self.pk, fk_event = event.pk)
             return invitation.fk_rank.is_attendee or invitation.fk_rank.is_organiser or invitation.fk_rank.is_admin
+        except Invitation.DoesNotExist:
+            return False
+
+    def has_organiser_access(self, event):
+        if event.fk_user_created_by == self:
+            return True
+        try:
+            invitation = Invitation.objects.get(fk_user_invited = self.pk, fk_event = event.pk)
+            return invitation.fk_rank.is_organiser or invitation.fk_rank.is_admin
+        except Invitation.DoesNotExist:
+            return False
+
+    def has_admin_access(self, event):
+        if event.fk_user_created_by == self:
+            return True
+        try:
+            invitation = Invitation.objects.get(fk_user_invited = self.pk, fk_event = event.pk)
+            return invitation.fk_rank.is_admin
         except Invitation.DoesNotExist:
             return False
         

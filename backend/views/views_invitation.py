@@ -5,15 +5,16 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 
 from backend.models import *
 from backend.views.helpers import *
 
 # Create your views here.
 
-################
-# STATUS VIEWS #
-################
+####################
+# INVITATION VIEWS #
+####################
 
 def invitation_details(request, invitation_pk):
     """
@@ -26,8 +27,10 @@ def invitation_details(request, invitation_pk):
 
     @see Invitation.json_detail
     """
-    get_session_user(request)
+    user = get_session_user(request)
     invitation = get_object_or_404(Invitation, pk=invitation_pk)
+    if(not user.has_attendee_access(invitation.fk_event)):
+        raise PermissionDenied
     return JsonResponse(invitation.json_detail())
 
 def invitation_create(request):
@@ -40,8 +43,11 @@ def invitation_create(request):
     user = get_session_user(request)
     try:
         rank = get_object_or_404(Rank, pk=request.POST['pk_rank'])
-        if rank.fk_event.pk != request.POST['pk_event']:
+        event = get_object_or_404(Event, pk=request.POST['pk_event'])
+        if rank.fk_event != event:
             raise IntegrityError
+        if not user.has_organiser_access(event):
+            raise PermissionDenied
         invitation = Invitation.objects.create(content = request.POST.get('content', ''),
                 status = 'P', #Pending
                 date_created = datetime.now(),
@@ -53,7 +59,7 @@ def invitation_create(request):
     except KeyError:
         return JsonResponse(json_error("Missing parameters"), status=400)
     except IntegrityError:
-        return JsonResponse(json_error("Integrity error"), status=400)
+        return JsonResponse(json_error("Integrity error: Wrong event/rank combination"), status=400)
     else:
         return HttpResponseRedirect(reverse('backend:invitation_details', args=(invitation.pk,)))
 
@@ -67,6 +73,8 @@ def invitation_edit(request):
     user = get_session_user(request)
     try:
         invitation = get_object_or_404(Invitation, pk=request.POST['pk_invitation'])
+        if not user.has_organiser_access(invitation.fk_event):
+            raise PermissionDenied
         rank = get_object_or_404(Rank, pk=request.POST['pk_rank'])
         if rank.fk_event.pk != invitation.fk_event.pk:
             raise IntegrityError

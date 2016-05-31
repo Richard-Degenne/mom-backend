@@ -5,6 +5,7 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.shortcuts import get_object_or_404
 from django.db.utils import IntegrityError
 from django.core.urlresolvers import reverse
+from django.core.exceptions import PermissionDenied
 
 from backend.models import *
 from backend.views.helpers import *
@@ -23,8 +24,10 @@ def event_statuses(request, event_pk):
 
     @return     A JSON array containing the statuses JSON objects.
     """
-    get_session_user(request)
+    user = get_session_user(request)
     event = get_object_or_404(Event, pk=event_pk)
+    if(not user.has_attendee_access(event)):
+        raise PermissionDenied
     response=[]
     for s in Status.objects.filter(fk_event=event.pk):
         response.append({'pk': s.pk,
@@ -41,8 +44,10 @@ def event_tasks(request, event_pk):
 
     @return     A JSON array containing the tasks JSON objects.
     """
-    get_session_user(request)
+    user = get_session_user(request)
     event = get_object_or_404(Event, pk=event_pk)
+    if(not user.has_organiser_access(event)):
+        raise PermissionDenied
     response=[]
     for t in Task.objects.filter(fk_event=event.pk):
         response.append({'pk': t.pk,
@@ -59,8 +64,10 @@ def event_invitations(request, event_pk):
 
     @return     A JSON array containing the invitations JSON objects.
     """
-    get_session_user(request)
+    user = get_session_user(request)
     event = get_object_or_404(Event, pk=event_pk)
+    if(not user.has_attendee_access(event)):
+        raise PermissionDenied
     response=[]
     for i in Invitation.objects.filter(fk_event=event.pk):
         response.append(i.json_detail())
@@ -74,8 +81,10 @@ def event_ranks(request, event_pk):
 
     @return     A JSON array containing the ranks JSON objects.
     """
-    get_session_user(request)
+    user = get_session_user(request)
     event = get_object_or_404(Event, pk=event_pk)
+    if(not user.has_organiser_access(event)):
+        raise PermissionDenied
     response=[]
     for r in Rank.objects.filter(fk_event=event.pk):
         response.append(r.json_detail())
@@ -92,8 +101,10 @@ def event_details(request, event_pk):
 
     @see Event.json_detail
     """
-    get_session_user(request)
+    user = get_session_user(request)
     event = get_object_or_404(Event, pk=event_pk)
+    if(not user.has_attendee_access(event)):
+            raise PermissionDenied
     return JsonResponse(event.json_detail())
 
 def event_create(request):
@@ -126,7 +137,6 @@ def event_create(request):
                 date_created = datetime.now(),
                 fk_event = event)
     except ValueError as v:
-        print(v)
         return JsonResponse(json_error("Name cannot be empty"), status=400)
     except KeyError:
         return JsonResponse(json_error("Missing parameters"), status=400)
