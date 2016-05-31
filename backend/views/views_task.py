@@ -27,9 +27,10 @@ def task_items(request, task_pk):
     task = get_object_or_404(Task, pk=task_pk)
     if not user.has_organiser_access(task.fk_event):
         raise PermissionDenied
-    response=[]
+    response={}
+    response['items'] = []
     for i in TaskItem.objects.filter(fk_task=task):
-        response.append({'pk': i.pk,
+        response['items'].append({'pk': i.pk,
                 'name': i.name,
                 'completed': i.completed,
                 'date_created': i.date_created})
@@ -47,9 +48,10 @@ def task_comments(request, task_pk):
     task = get_object_or_404(Task, pk=task_pk)
     if not user.has_organiser_access(task.fk_event):
         raise PermissionDenied
-    response=[]
+    response={}
+    response['comments'] = []
     for c in Comment.objects.filter(fk_task=task):
-        response.append({'pk': c.pk,
+        response['comments'].append({'pk': c.pk,
                 'content': c.content,
                 'date_created': c.date_created,
                 'pk_user_created_by': c.fk_user_created_by.pk})
