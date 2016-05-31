@@ -136,7 +136,7 @@ def event_create(request):
                 is_organiser=True,
                 date_created = datetime.now(),
                 fk_event = event)
-    except ValueError as v:
+    except ValueError:
         return JsonResponse(json_error("Name cannot be empty"), status=400)
     except KeyError:
         return JsonResponse(json_error("Missing parameters"), status=400)
