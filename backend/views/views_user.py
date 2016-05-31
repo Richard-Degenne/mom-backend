@@ -48,8 +48,7 @@ def user_events(request, user_pk):
             Q(pk__in = Invitation.objects.filter(fk_user_invited=user.pk, status='A')
             .values_list('fk_event__pk', flat=True)))
     for e in events:
-        data = {}
-        data['event'] = e.json_detail()
+        data = e.json_detail()
         if(e.fk_user_created_by != user):
             invitation = Invitation.objects.get(fk_event = e, fk_user_invited = user)
             data['rank'] = invitation.fk_rank.json_detail()
