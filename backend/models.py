@@ -110,6 +110,7 @@ class Rank(models.Model):
 
     def json_detail(self):
         return {'pk': self.pk,
+                'name': self.name,
                 'description': self.description,
                 'is_attendee': self.is_attendee,
                 'is_organiser': self.is_organiser,
