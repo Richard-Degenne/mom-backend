@@ -45,8 +45,7 @@ def user_events(request, user_pk):
     response = {}
     response['events'] = []
     events = Event.objects.filter(Q(fk_user_created_by = user.pk) |
-            Q(pk__in = Invitation.objects.filter(fk_user_invited=user.pk, status='A')
-            .values_list('fk_event__pk', flat=True)))
+            Q(pk__in = Invitation.objects.filter(fk_user_invited=user.pk))).filter(Q(date__gt = datetime.now()))
     for e in events:
         data = e.json_detail()
         if(e.fk_user_created_by != user):
