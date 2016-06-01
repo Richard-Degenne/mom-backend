@@ -198,7 +198,7 @@ class Status(models.Model):
                 'content': self.content,
                 'date_created': self.date_created,
                 'pk_event': self.fk_event.pk,
-                'pk_user_created_by': self.fk_user.pk
+                'pk_user_created_by': self.fk_user_created_by.pk
         }
 
 class IsSyncedWith(models.Model):

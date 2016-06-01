@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -50,9 +52,11 @@ def user_events(request, user_pk):
         data = e.json_detail()
         if(e.fk_user_created_by != user):
             invitation = Invitation.objects.get(fk_event = e, fk_user_invited = user)
+            data['invitation'] = invitation.json_detail()
             data['rank'] = invitation.fk_rank.json_detail()
         else:
             data['rank'] = {}
+            data['invitation'] = {}
         response['events'].append(data)
     return JsonResponse(response, safe=False)
 
@@ -86,7 +90,8 @@ def user_register(request):
     except IntegrityError:
         return JsonResponse(json_error("Phone number/email already exists"), status=400)
     else:
-        return HttpResponseRedirect(reverse('backend:user_details', args=(user.pk,)))
+        return user_sign_in(request)
+        # return HttpResponseRedirect(reverse('backend:user_details', args=(user.pk,)))
         
 def user_sign_in(request):
     """
