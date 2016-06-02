@@ -74,7 +74,8 @@ def event_invitations(request, event_pk):
     response['invitations'] = []
     for i in Invitation.objects.filter(fk_event=event.pk):
         data = i.json_detail()
-        data['user_invited'] = i.fk_user_invited.json_detail()
+        data['user_invited'] = i.fk_user_invited.json_detail_public()
+        data['rank'] = i.fk_rank.json_detail()
         response['invitations'].append(data)
     return JsonResponse(response, safe=False)
 

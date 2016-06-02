@@ -50,6 +50,8 @@ urlpatterns = [
         url(r'task/(?P<task_pk>[0-9]+)/comments', views_task.task_comments, name='task_comments'),
         # /task/<pk_task>/add_user
         url(r'task/(?P<task_pk>[0-9]+)/add_user', views_task.task_add_user, name='task_add_user'),
+        # /task/<pk_task>/users
+        url(r'task/(?P<task_pk>[0-9]+)/users', views_task.task_users, name='task_users'),
         # /task/<pk_task>
         url(r'task/(?P<task_pk>[0-9]+)', views_task.task_details, name='task_details'),
         # /task/create
