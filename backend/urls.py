@@ -12,6 +12,8 @@ urlpatterns = [
         url(r'user/(?P<user_pk>[0-9]+)/events', views_user.user_events, name='user_events'),
         # /user/<pk_user>
         url(r'user/(?P<user_pk>[0-9]+)', views_user.user_details, name='user_details'),
+        # /user/search
+        url(r'user/search', views_user.user_search, name='user_search'),
         # /register
         url(r'register', views_user.user_register, name='user_register'),
         # /sign_in

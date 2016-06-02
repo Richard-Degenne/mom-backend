@@ -91,10 +91,11 @@ def event_ranks(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
     if(not user.has_organiser_access(event)):
         raise PermissionDenied
-    response=[]
+    response={}
+    response['ranks'] = []
     for r in Rank.objects.filter(fk_event=event.pk):
-        response.append(r.json_detail())
-    return JsonResponse(response, safe=False)
+        response['ranks'].append(r.json_detail())
+    return JsonResponse(response)
 
 def event_details(request, event_pk):
     """

@@ -33,6 +33,22 @@ def user_details(request, user_pk):
     else:
         return JsonResponse(user.json_detail_public())
 
+def user_search(request):
+    """
+    Get a user from its email address.
+    """
+    user_request = get_session_user(request)
+    response = {}
+    try:
+        user = User.objects.get(email=request.POST['email'])
+    except KeyError:
+        return JsonResponse(json_error("Missing parameters", status=400))
+    except User.DoesNotExist:
+        response['user'] = {}
+    else:
+        response['user'] = user.json_detail_public()
+    return JsonResponse(response)
+        
 def user_events(request, user_pk):
     """
     Get the events a given user has access to.

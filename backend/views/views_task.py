@@ -121,7 +121,7 @@ def task_create(request):
     user = get_session_user(request)
     # Set description to null if it is not given in the request or blank
     try:
-        if not user.has_organiser_access(get_object_or_404(request.POST['pk_event'])):
+        if not user.has_organiser_access(get_object_or_404(Event, pk=request.POST['pk_event'])):
             raise PermissionDenied
         if request.POST['description'] == '':
             request.POST['description'] = None
