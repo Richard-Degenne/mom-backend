@@ -17,12 +17,14 @@ Installation
 
 In order to get mom-backend, you can
 
-- Run `$ git clone https://github.com/Richard-Degenne/mom-backend/tree/v0.2` ;
-- Donwload a ZIP archive by clicking [here](https://github.com/Richard-Degenne/mom-backend/tree/v0.2)
+- Run `$ git clone https://github.com/Richard-Degenne/mom-backend/` ;
+- Donwload a ZIP archive by clicking [here](https://github.com/Richard-Degenne/mom-backend/archive/master.zip)
 
 Position into the mom-backed folder by running
 
     $ cd mom-backend
+
+(`mom-backend-master` if you have used the ZIP archive).
 
 ### Installing dependancies
 
