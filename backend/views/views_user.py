@@ -62,12 +62,12 @@ def user_events(request, user_pk):
     user = get_object_or_404(User, pk=user_pk)
     response = {}
     response['events'] = []
-    events = Event.objects.filter(Q(fk_user_created_by = user.pk) |
-            Q(pk__in = Invitation.objects.filter(fk_user_invited=user.pk))).filter(Q(date__gt = datetime.now()))
+    events = Event.objects.filter(Q(fk_user_created_by = user) |
+            Q(pk__in = Invitation.objects.filter(fk_user_invited__pk=user.pk).values_list('fk_event__pk', flat=True)))
     for e in events:
         data = e.json_detail()
         if(e.fk_user_created_by != user):
-            invitation = Invitation.objects.get(fk_event = e, fk_user_invited = user)
+            invitation = Invitation.objects.filter(fk_event = e, fk_user_invited = user)[0]
             data['invitation'] = invitation.json_detail()
             data['rank'] = invitation.fk_rank.json_detail()
         else:
