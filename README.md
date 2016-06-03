@@ -63,6 +63,12 @@ Since mom-backend uses the Google API, you need a valid Google API key. Open aga
 
 Replace the angle-bracketed value by the actual key.
 
+### Installing needed data
+
+Run the following command to feed the database with the necessary data
+
+    $ python manage.py loaddata backend/fixtures/data.json
+
 ### Running the server
 
 That's it! You're all set up! You can now run the mom-backend server with the following command.
