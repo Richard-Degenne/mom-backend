@@ -75,6 +75,25 @@ def task_add_user(request, task_pk):
         IsAffectedTo.objects.create(fk_task=task, fk_user=user)
         return HttpResponseRedirect(reverse('backend:task_details', args=(task.pk,)))
 
+def task_users(request, task_pk):
+    """
+    Get all the users affected to a given task.
+
+    @param  task_pk     Primary key of the task to get
+
+    @return     A JSON array containing all the users JSON objects.
+    """
+    user = get_session_user(request)
+    task = get_object_or_404(Task, pk=task_pk)
+    if not user.has_organiser_access(task.fk_event):
+        raise PermissionDenied
+    response={}
+    response['users'] = []
+    for u in User.objects.filter(pk__in = IsAffectedTo.objects.filter(fk_task = task)
+            .values_list('fk_user__pk', flat=True)):
+        response['users'].append(u.json_detail_public())
+    return JsonResponse(response, safe=False)
+
 def task_details(request, task_pk):
     """
     Get a task detailed information.
@@ -102,7 +121,7 @@ def task_create(request):
     user = get_session_user(request)
     # Set description to null if it is not given in the request or blank
     try:
-        if not user.has_organiser_access(get_object_or_404(request.POST['pk_event'])):
+        if not user.has_organiser_access(get_object_or_404(Event, pk=request.POST['pk_event'])):
             raise PermissionDenied
         if request.POST['description'] == '':
             request.POST['description'] = None

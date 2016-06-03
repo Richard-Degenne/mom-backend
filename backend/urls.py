@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .views import views_user, views_event, views_status, views_task, views_task_item, views_comment, views_rank, views_invitation
+from .views import views_user, views_event, views_status, views_task, views_task_item, views_comment, views_rank, views_invitation, views_network
 
 app_name='backend'
 
@@ -12,6 +12,8 @@ urlpatterns = [
         url(r'user/(?P<user_pk>[0-9]+)/events', views_user.user_events, name='user_events'),
         # /user/<pk_user>
         url(r'user/(?P<user_pk>[0-9]+)', views_user.user_details, name='user_details'),
+        # /user/search
+        url(r'user/search', views_user.user_search, name='user_search'),
         # /register
         url(r'register', views_user.user_register, name='user_register'),
         # /sign_in
@@ -50,6 +52,8 @@ urlpatterns = [
         url(r'task/(?P<task_pk>[0-9]+)/comments', views_task.task_comments, name='task_comments'),
         # /task/<pk_task>/add_user
         url(r'task/(?P<task_pk>[0-9]+)/add_user', views_task.task_add_user, name='task_add_user'),
+        # /task/<pk_task>/users
+        url(r'task/(?P<task_pk>[0-9]+)/users', views_task.task_users, name='task_users'),
         # /task/<pk_task>
         url(r'task/(?P<task_pk>[0-9]+)', views_task.task_details, name='task_details'),
         # /task/create
@@ -90,4 +94,10 @@ urlpatterns = [
         url(r'status/create', views_status.status_create, name='status_create'),
         # /status/<pk_status>
         url(r'status/(?P<status_pk>[0-9]+)', views_status.status_details, name='status_details'),
+
+        ###########
+        # NETWORK #
+        ###########
+        # /network/sync
+        url(r'network/sync', views_network.network_sync, name='network_sync'),
 ]
