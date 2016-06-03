@@ -70,9 +70,13 @@ def event_invitations(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
     if(not user.has_attendee_access(event)):
         raise PermissionDenied
-    response=[]
+    response={}
+    response['invitations'] = []
     for i in Invitation.objects.filter(fk_event=event.pk):
-        response.append(i.json_detail())
+        data = i.json_detail()
+        data['user_invited'] = i.fk_user_invited.json_detail_public()
+        data['rank'] = i.fk_rank.json_detail()
+        response['invitations'].append(data)
     return JsonResponse(response, safe=False)
 
 def event_ranks(request, event_pk):
@@ -87,10 +91,11 @@ def event_ranks(request, event_pk):
     event = get_object_or_404(Event, pk=event_pk)
     if(not user.has_organiser_access(event)):
         raise PermissionDenied
-    response=[]
+    response={}
+    response['ranks'] = []
     for r in Rank.objects.filter(fk_event=event.pk):
-        response.append(r.json_detail())
-    return JsonResponse(response, safe=False)
+        response['ranks'].append(r.json_detail())
+    return JsonResponse(response)
 
 def event_details(request, event_pk):
     """

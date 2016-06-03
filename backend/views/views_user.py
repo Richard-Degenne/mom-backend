@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -31,6 +33,22 @@ def user_details(request, user_pk):
     else:
         return JsonResponse(user.json_detail_public())
 
+def user_search(request):
+    """
+    Get a user from its email address.
+    """
+    user_request = get_session_user(request)
+    response = {}
+    try:
+        user = User.objects.get(email=request.POST['email'])
+    except KeyError:
+        return JsonResponse(json_error("Missing parameters", status=400))
+    except User.DoesNotExist:
+        response['user'] = {}
+    else:
+        response['user'] = user.json_detail_public()
+    return JsonResponse(response)
+        
 def user_events(request, user_pk):
     """
     Get the events a given user has access to.
@@ -44,15 +62,17 @@ def user_events(request, user_pk):
     user = get_object_or_404(User, pk=user_pk)
     response = {}
     response['events'] = []
-    events = Event.objects.filter(Q(fk_user_created_by = user.pk) |
-            Q(pk__in = Invitation.objects.filter(fk_user_invited=user.pk))).filter(Q(date__gt = datetime.now()))
+    events = Event.objects.filter(Q(fk_user_created_by = user) |
+            Q(pk__in = Invitation.objects.filter(fk_user_invited__pk=user.pk).values_list('fk_event__pk', flat=True)))
     for e in events:
         data = e.json_detail()
         if(e.fk_user_created_by != user):
-            invitation = Invitation.objects.get(fk_event = e, fk_user_invited = user)
+            invitation = Invitation.objects.filter(fk_event = e, fk_user_invited = user)[0]
+            data['invitation'] = invitation.json_detail()
             data['rank'] = invitation.fk_rank.json_detail()
         else:
             data['rank'] = {}
+            data['invitation'] = {}
         response['events'].append(data)
     return JsonResponse(response, safe=False)
 
@@ -86,7 +106,8 @@ def user_register(request):
     except IntegrityError:
         return JsonResponse(json_error("Phone number/email already exists"), status=400)
     else:
-        return HttpResponseRedirect(reverse('backend:user_details', args=(user.pk,)))
+        return user_sign_in(request)
+        # return HttpResponseRedirect(reverse('backend:user_details', args=(user.pk,)))
         
 def user_sign_in(request):
     """

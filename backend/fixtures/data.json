@@ -1,0 +1,9 @@
+[
+	{
+		"model": "backend.Network",
+		"pk": 1,
+		"fields": {
+			"name": "Google"
+		}
+	}
+]

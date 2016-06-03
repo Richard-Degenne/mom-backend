@@ -198,11 +198,11 @@ class Status(models.Model):
                 'content': self.content,
                 'date_created': self.date_created,
                 'pk_event': self.fk_event.pk,
-                'pk_user_created_by': self.fk_user.pk
+                'pk_user_created_by': self.fk_user_created_by.pk
         }
 
 class IsSyncedWith(models.Model):
-    user_token = models.CharField(max_length=50) # Maybe 50 is too much?
+    user_id = models.CharField(max_length=2048, null=False)
     fk_user = models.ForeignKey(User, on_delete=models.CASCADE)
     fk_network = models.ForeignKey(Network, on_delete=models.CASCADE)
 

@@ -41,7 +41,7 @@ def comment_create(request):
     """
     user = get_session_user(request)
     try:
-        task = get_object_or_404(Task, request.POST['pk_task'])
+        task = get_object_or_404(Task, pk=request.POST['pk_task'])
         if(not user.has_organiser_access(task.fk_event)):
             raise PermissionDenied
         comment = Comment.objects.create(content = request.POST['content'],

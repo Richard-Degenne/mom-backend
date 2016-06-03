@@ -78,9 +78,14 @@ def task_item_edit(request):
                 request.POST['name'] = task_item.name
         except KeyError:
             request.POST['name'] = task_item.name
+        try:
+            if request.POST['completed'].lower() == 'false':
+                request.POST['completed'] = False
+        except KeyError:
+            request.POST['completed'] = task_item.completed
 
     task_item.name = request.POST['name']
-    task_item.completed = request.POST.get('completed', task_item.completed)
+    task_item.completed = request.POST['completed']
     task_item.save()
 
     return HttpResponseRedirect(reverse('backend:task_item_details', args=(task_item.pk,)))
