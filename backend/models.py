@@ -202,7 +202,7 @@ class Status(models.Model):
         }
 
 class IsSyncedWith(models.Model):
-    user_token = models.CharField(max_length=50) # Maybe 50 is too much?
+    user_id = models.CharField(max_length=2048, null=False)
     fk_user = models.ForeignKey(User, on_delete=models.CASCADE)
     fk_network = models.ForeignKey(Network, on_delete=models.CASCADE)
 

@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from .views import views_user, views_event, views_status, views_task, views_task_item, views_comment, views_rank, views_invitation
+from .views import views_user, views_event, views_status, views_task, views_task_item, views_comment, views_rank, views_invitation, views_network
 
 app_name='backend'
 
@@ -94,4 +94,10 @@ urlpatterns = [
         url(r'status/create', views_status.status_create, name='status_create'),
         # /status/<pk_status>
         url(r'status/(?P<status_pk>[0-9]+)', views_status.status_details, name='status_details'),
+
+        ###########
+        # NETWORK #
+        ###########
+        # /network/sync
+        url(r'network/sync', views_network.network_sync, name='network_sync'),
 ]
