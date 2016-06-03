@@ -3,7 +3,7 @@ from datetime import datetime
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.db.utils import IntegrityError
+from django.db import IntegrityError
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 
@@ -75,23 +75,24 @@ def invitation_edit(request):
         invitation = get_object_or_404(Invitation, pk=request.POST['pk_invitation'])
         if not user.has_organiser_access(invitation.fk_event):
             raise PermissionDenied
-        rank = get_object_or_404(Rank, pk=request.POST['pk_rank'])
+        rank = get_object_or_404(Rank, pk=invitation.fk_rank.pk)
         if rank.fk_event.pk != invitation.fk_event.pk:
             raise IntegrityError
-    except KeyError:
+    except KeyError as v:
+        print(v)
         return JsonResponse(json_error("Missing parameters"), status=400)
-    except IntergrityError:
+    except IntegrityError as v:
+        print(v)
         return JsonResponse(json_error("Integrity error"), status=400)
     else:
         try:
             if request.POST['content'] == '':
                 request.POST['content'] = invitation.content
         except KeyError:
-            request.POST['content'] = invitation.content
+            pass
 
-    invitation.content = request.POST['content']
+    invitation.content = request.POST.get('content', invitation.content)
     invitation.status = request.POST.get('status', invitation.status)
-    invitation.fk_rank = get_object_or_404(Rank, pk=request.POST.get('pk_rank', invitation.fk_rank.pk))
     invitation.save()
 
     return HttpResponseRedirect(reverse('backend:invitation_details', args=(invitation.pk,)))
